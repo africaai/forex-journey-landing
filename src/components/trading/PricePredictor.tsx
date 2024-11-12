@@ -21,10 +21,18 @@ const PricePredictor = () => {
     queryKey: ['forex-rates'],
     queryFn: async () => {
       const response = await fetch(
-        'http://apilayer.net/api/live?access_key=4e8f2bcb961a7fdf74ecc8b8aea353dd&currencies=EUR,GBP,CAD,PLN&source=USD&format=1'
+        'https://open.er-api.com/v6/latest/USD'
       );
       if (!response.ok) throw new Error('Failed to fetch rates');
-      return response.json();
+      const data = await response.json();
+      return {
+        quotes: {
+          USDEUR: data.rates.EUR,
+          USDGBP: data.rates.GBP,
+          USDCAD: data.rates.CAD,
+          USDPLN: data.rates.PLN
+        }
+      };
     },
     refetchInterval: 60000 // Refresh every minute
   });
