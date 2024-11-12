@@ -1,7 +1,12 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 
 const Hero = () => {
+  const [showSignUp, setShowSignUp] = useState(false);
+
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-primary-dark via-primary to-primary-light">
       <div className="absolute inset-0 overflow-hidden">
@@ -20,6 +25,7 @@ const Hero = () => {
             <Button
               size="lg"
               className="bg-accent hover:bg-accent-light text-black font-semibold"
+              onClick={() => setShowSignUp(true)}
             >
               Start Learning
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -28,6 +34,7 @@ const Hero = () => {
               size="lg"
               variant="outline"
               className="bg-white/10 hover:bg-white/20 text-white border-white/30"
+              onClick={() => setShowSignUp(true)}
             >
               Free Sneak Peek
             </Button>
@@ -37,6 +44,18 @@ const Hero = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={showSignUp} onOpenChange={setShowSignUp}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Sign Up to Start Learning</DialogTitle>
+          </DialogHeader>
+          <SignUpForm onSuccess={() => {
+            setShowSignUp(false);
+            window.location.href = "/courses";
+          }} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
