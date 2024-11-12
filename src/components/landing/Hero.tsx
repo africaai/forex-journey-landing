@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SignUpForm } from "@/components/auth/SignUpForm";
+import { PreviewDialog } from "@/components/landing/PreviewDialog";
 
 const Hero = () => {
   const [showSignUp, setShowSignUp] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-primary-dark via-primary to-primary-light">
@@ -34,7 +36,7 @@ const Hero = () => {
               size="lg"
               variant="outline"
               className="bg-white/10 hover:bg-white/20 text-white border-white/30"
-              onClick={() => setShowSignUp(true)}
+              onClick={() => setShowPreview(true)}
             >
               Free Sneak Peek
             </Button>
@@ -56,6 +58,8 @@ const Hero = () => {
           }} />
         </DialogContent>
       </Dialog>
+
+      <PreviewDialog open={showPreview} onOpenChange={setShowPreview} />
     </div>
   );
 };
