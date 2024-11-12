@@ -30,11 +30,21 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       preferredMarket: formData.get("preferredMarket"),
       learningGoal: formData.get("learningGoal"),
       availableTime: formData.get("availableTime"),
+      sessionId: crypto.randomUUID()
     };
 
-    setTimeout(() => {
-      setIsLoading(false);
-      localStorage.setItem("sessionToken", generateSessionToken());
+    try {
+      const response = await fetch('https://hook.eu2.make.com/8pqd5dv7mt5eko4657yw3lanaj4cgaxm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) throw new Error('Failed to submit form');
+
+      localStorage.setItem("sessionToken", data.sessionId);
       localStorage.setItem("deviceId", data.deviceId);
       localStorage.setItem("userPreferences", JSON.stringify({
         tradingExperience: data.tradingExperience,
@@ -48,7 +58,15 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         description: "Welcome to the course. We've customized your learning path based on your preferences.",
       });
       onSuccess();
-    }, 1500);
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const generateDeviceId = () => {
