@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ForexRate } from "@/types/forex";
 import ForexCharts from "./ForexCharts";
 import ForexPredictionCard from "./ForexPredictionCard";
+import NewsTicker from "./NewsTicker";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -144,6 +145,7 @@ const PricePredictor = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        <NewsTicker />
         {predictions.length > 0 ? (
           <motion.div 
             className="space-y-6"
