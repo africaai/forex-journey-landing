@@ -10,6 +10,7 @@ import OpenAI from "openai";
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   baseURL: "https://api.x.ai/v1",
+  dangerouslyAllowBrowser: true // Added this option to fix the browser environment error
 });
 
 interface ForexRate {
