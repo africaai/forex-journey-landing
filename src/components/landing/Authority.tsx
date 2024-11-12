@@ -1,4 +1,5 @@
 import { Award, BookOpen, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Authority = () => {
   return (
@@ -15,7 +16,7 @@ const Authority = () => {
             <img
               src="https://cdn.fs.teachablecdn.com/oR3wdScZTceol4qgSxEt"
               alt="Dennis Okari"
-              className="rounded-lg shadow-xl w-full object-cover h-[500px]"
+              className="rounded-lg shadow-xl w-full object-contain h-[500px] bg-gray-100"
             />
           </div>
           
@@ -59,16 +60,28 @@ const Authority = () => {
             </div>
             
             <div className="flex flex-wrap gap-4">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/NTV_Kenya.svg/200px-NTV_Kenya.svg.png"
-                alt="NTV"
-                className="h-8 opacity-50 hover:opacity-100 transition-opacity"
-              />
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/BBC_Logo_2021.svg/200px-BBC_Logo_2021.svg.png"
-                alt="BBC"
-                className="h-8 opacity-50 hover:opacity-100 transition-opacity"
-              />
+              <Button
+                variant="ghost"
+                className="p-0 h-auto hover:bg-transparent"
+                onClick={() => window.open('https://www.ntv.co.ke', '_blank')}
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/NTV_Kenya.svg/200px-NTV_Kenya.svg.png"
+                  alt="NTV"
+                  className="h-8 opacity-50 hover:opacity-100 transition-opacity"
+                />
+              </Button>
+              <Button
+                variant="ghost"
+                className="p-0 h-auto hover:bg-transparent"
+                onClick={() => window.open('https://www.bbc.com', '_blank')}
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/BBC_Logo_2021.svg/200px-BBC_Logo_2021.svg.png"
+                  alt="BBC"
+                  className="h-8 opacity-50 hover:opacity-100 transition-opacity"
+                />
+              </Button>
             </div>
           </div>
         </div>
