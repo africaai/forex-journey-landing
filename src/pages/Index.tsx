@@ -1,6 +1,8 @@
 import Hero from "@/components/landing/Hero";
 import Authority from "@/components/landing/Authority";
 import Benefits from "@/components/landing/Benefits";
+import ProgramDetails from "@/components/landing/ProgramDetails";
+import FAQ from "@/components/landing/FAQ";
 
 const Index = () => {
   return (
@@ -8,6 +10,8 @@ const Index = () => {
       <Hero />
       <Authority />
       <Benefits />
+      <ProgramDetails />
+      <FAQ />
     </main>
   );
 };
