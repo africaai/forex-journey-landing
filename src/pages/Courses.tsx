@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, FileCheck } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const courseModules = [
   {
@@ -28,6 +31,38 @@ const courseModules = [
 ];
 
 const Courses = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Check for valid session
+    const sessionToken = localStorage.getItem("sessionToken");
+    const deviceId = localStorage.getItem("deviceId");
+    
+    if (!sessionToken || !deviceId) {
+      toast({
+        title: "Session expired",
+        description: "Please sign in again to continue learning",
+        variant: "destructive",
+      });
+      navigate("/");
+      return;
+    }
+
+    // Here you would typically validate the session with your backend
+    // For now, we'll just check if the device ID matches
+    const currentDeviceId = crypto.randomUUID();
+    if (deviceId !== localStorage.getItem("deviceId")) {
+      toast({
+        title: "Account in use",
+        description: "This account is already being used on another device",
+        variant: "destructive",
+      });
+      navigate("/");
+      return;
+    }
+  }, [navigate, toast]);
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
