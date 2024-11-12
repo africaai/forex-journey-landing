@@ -13,7 +13,7 @@ const Authority = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <img
-              src="https://images.unsplash.com/photo-1581092795360-fd1ca04f0952"
+              src="https://cdn.fs.teachablecdn.com/oR3wdScZTceol4qgSxEt"
               alt="Dennis Okari"
               className="rounded-lg shadow-xl w-full object-cover h-[500px]"
             />
