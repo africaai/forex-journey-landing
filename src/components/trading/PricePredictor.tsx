@@ -3,27 +3,18 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Loader2, TrendingUp } from "lucide-react";
 import OpenAI from "openai";
 import { motion, AnimatePresence } from "framer-motion";
+import { ForexRate } from "@/types/forex";
+import ForexCharts from "./ForexCharts";
+import ForexPredictionCard from "./ForexPredictionCard";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   baseURL: "https://api.x.ai/v1",
   dangerouslyAllowBrowser: true
 });
-
-interface ForexRate {
-  currency: string;
-  rate: number;
-  prediction: string;
-  confidence: number;
-  sentiment: 'bullish' | 'bearish' | 'neutral';
-  volume: number;
-  support: number;
-  resistance: number;
-}
 
 const PricePredictor = () => {
   const { toast } = useToast();
@@ -84,8 +75,8 @@ const PricePredictor = () => {
       const analysis = completion.choices[0].message.content;
 
       // Transform rates and analysis into enhanced chart data
-      const newPredictions = Object.entries(rates.quotes).map(([pair, rate]) => {
-        const currencyAnalysis = analysis.split('\n').find(line => line.includes(pair))?.split(':')[1] || 'No prediction';
+      const newPredictions: ForexRate[] = Object.entries(rates.quotes).map(([pair, rate]) => {
+        const currencyAnalysis = analysis?.split('\n').find(line => line.includes(pair))?.split(':')[1] || 'No prediction';
         const sentiment = currencyAnalysis.toLowerCase().includes('bullish') ? 'bullish' : 
                          currencyAnalysis.toLowerCase().includes('bearish') ? 'bearish' : 'neutral';
         
@@ -117,15 +108,6 @@ const PricePredictor = () => {
       setIsAnalyzing(false);
     }
   };
-
-  const chartData = predictions.map(p => ({
-    name: p.currency,
-    rate: p.rate,
-    confidence: p.confidence,
-    volume: p.volume,
-    support: p.support,
-    resistance: p.resistance
-  }));
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -169,81 +151,10 @@ const PricePredictor = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="rate" stroke="#2563eb" fillOpacity={1} fill="url(#colorRate)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="support" stroke="#16a34a" name="Support" />
-                    <Line type="monotone" dataKey="resistance" stroke="#dc2626" name="Resistance" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            <ForexCharts predictions={predictions} />
             <div className="grid gap-4">
               {predictions.map((prediction) => (
-                <motion.div
-                  key={prediction.currency}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Card className={`
-                    border-l-4
-                    ${prediction.sentiment === 'bullish' ? 'border-l-green-500' : 
-                      prediction.sentiment === 'bearish' ? 'border-l-red-500' : 
-                      'border-l-yellow-500'}
-                  `}>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-2">
-                          <h3 className="font-bold text-lg">USD/{prediction.currency}</h3>
-                          <p className="text-sm text-muted-foreground max-w-[600px]">
-                            {prediction.prediction}
-                          </p>
-                          <div className="flex gap-4 text-sm text-muted-foreground">
-                            <span>Support: {prediction.support.toFixed(4)}</span>
-                            <span>Resistance: {prediction.resistance.toFixed(4)}</span>
-                            <span>Volume: {prediction.volume.toLocaleString()}</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-mono text-xl">{prediction.rate.toFixed(4)}</p>
-                          <p className={`text-sm font-medium
-                            ${prediction.sentiment === 'bullish' ? 'text-green-600' : 
-                              prediction.sentiment === 'bearish' ? 'text-red-600' : 
-                              'text-yellow-600'}
-                          `}>
-                            {prediction.sentiment.toUpperCase()}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Confidence: {prediction.confidence.toFixed(1)}%
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                <ForexPredictionCard key={prediction.currency} prediction={prediction} />
               ))}
             </div>
           </motion.div>
