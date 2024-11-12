@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import OpenAI from 'openai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { TrendingUp, Clock } from 'lucide-react';
+import { TrendingUp, Clock, Globe, ArrowRight } from 'lucide-react';
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -23,11 +22,11 @@ const NewsTicker = () => {
         messages: [
           {
             role: "system",
-            content: `You are a financial news analyst. Current date and time: ${currentDate}. Provide the very latest forex market news and developments that could impact currency trading. Focus on major currency pairs and significant market events that have occurred in the last few hours.`
+            content: `You are a financial news analyst Current date and time ${currentDate} Provide only the latest forex market headlines in plain text format without any punctuation or additional context Focus on major currency pairs and significant market events from the last few hours`
           },
           {
             role: "user",
-            content: `As of ${currentDate}, what are the most recent and impactful forex market headlines? Provide 5 recent headlines with brief descriptions, focusing on events from the last few hours.`
+            content: `As of ${currentDate} what are the most recent forex market headlines Provide exactly 5 headlines focusing on events from the last few hours Format as plain text without punctuation or additional context`
           }
         ]
       });
@@ -37,76 +36,73 @@ const NewsTicker = () => {
         .filter(line => line.trim())
         .map(line => line.replace(/^\d+\.\s*/, ''));
     },
-    refetchInterval: 300000 // Refetch every 5 minutes
+    refetchInterval: 300000
   });
 
   useEffect(() => {
     if (news.length > 0) {
       const interval = setInterval(() => {
         setCurrentNewsIndex((prev) => (prev + 1) % news.length);
-      }, 8000); // Increased duration for better readability
+      }, 8000);
       return () => clearInterval(interval);
     }
   }, [news.length]);
 
   if (isLoading || !news.length) {
     return (
-      <div className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-lg p-4 mb-4">
-        <div className="flex items-center gap-2 text-muted-foreground animate-pulse">
-          <TrendingUp className="h-4 w-4" />
-          <span>Loading market updates...</span>
-        </div>
+      <div className="flex items-center gap-2 text-muted-foreground animate-pulse p-4">
+        <Globe className="h-4 w-4" />
+        <span>Loading market updates...</span>
       </div>
     );
   }
 
   return (
-    <div className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-lg p-4 mb-4">
+    <div className="w-full py-4">
       <div className="flex items-center gap-2 mb-2">
         <TrendingUp className="h-4 w-4 text-primary" />
-        <span className="text-xs font-medium text-muted-foreground">MARKET UPDATES</span>
-        <div className="flex-1 border-t border-border/50 mx-2" />
+        <span className="text-xs font-medium text-muted-foreground">LIVE MARKET UPDATES</span>
+        <div className="flex-1" />
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Clock className="h-3 w-3" />
           <span>Updates every 5m</span>
         </div>
       </div>
-      <ScrollArea className="h-16 w-full overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentNewsIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ 
-              duration: 0.5,
-              ease: [0.32, 0.72, 0, 1]
-            }}
-            className="py-1"
-          >
-            <div className="flex flex-col gap-1">
-              <motion.div
-                className="text-sm font-medium text-foreground"
-                layout
-              >
-                {news[currentNewsIndex]}
-              </motion.div>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {news.map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`h-1 w-6 rounded-full transition-colors duration-300 ${
-                        idx === currentNewsIndex ? 'bg-primary' : 'bg-border'
-                      }`}
-                    />
-                  ))}
-                </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentNewsIndex}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ 
+            duration: 0.5,
+            ease: [0.32, 0.72, 0, 1]
+          }}
+          className="py-2"
+        >
+          <div className="flex flex-col gap-1">
+            <motion.div
+              className="text-lg font-medium text-foreground flex items-center gap-2"
+              layout
+            >
+              <ArrowRight className="h-5 w-5 text-primary" />
+              {news[currentNewsIndex]}
+            </motion.div>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex gap-1">
+                {news.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`h-1 w-6 rounded-full transition-colors duration-300 ${
+                      idx === currentNewsIndex ? 'bg-primary' : 'bg-border'
+                    }`}
+                  />
+                ))}
               </div>
             </div>
-          </motion.div>
-        </AnimatePresence>
-      </ScrollArea>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
