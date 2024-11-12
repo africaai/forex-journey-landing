@@ -17,16 +17,17 @@ const NewsTicker = () => {
   const { data: news = [], isLoading } = useQuery({
     queryKey: ['forex-news'],
     queryFn: async () => {
+      const currentDate = new Date().toLocaleString();
       const completion = await openai.chat.completions.create({
         model: "grok-beta",
         messages: [
           {
             role: "system",
-            content: "You are a financial news analyst. Provide the latest forex market news and developments that could impact currency trading. Focus on major currency pairs and significant market events."
+            content: `You are a financial news analyst. Current date and time: ${currentDate}. Provide the very latest forex market news and developments that could impact currency trading. Focus on major currency pairs and significant market events that have occurred in the last few hours.`
           },
           {
             role: "user",
-            content: "What are the latest forex market news headlines? Provide 5 recent, impactful headlines with brief descriptions."
+            content: `As of ${currentDate}, what are the most recent and impactful forex market headlines? Provide 5 recent headlines with brief descriptions, focusing on events from the last few hours.`
           }
         ]
       });
