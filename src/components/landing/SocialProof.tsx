@@ -1,4 +1,4 @@
-import { Twitter, Instagram, Facebook, TikTok, ExternalLink } from "lucide-react";
+import { Twitter, Instagram, Facebook, Video, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -7,7 +7,7 @@ const SocialProof = () => {
     { icon: Twitter, href: "https://twitter.com/dennisokari", color: "text-blue-400" },
     { icon: Instagram, href: "https://instagram.com/dennisokari", color: "text-pink-500" },
     { icon: Facebook, href: "https://facebook.com/dennisokari", color: "text-blue-600" },
-    { icon: TikTok, href: "https://tiktok.com/@dennisokari", color: "text-gray-800" }
+    { icon: Video, href: "https://tiktok.com/@dennisokari", color: "text-gray-800" }
   ];
 
   return (
