@@ -5,6 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Loader2 } from "lucide-react";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  baseURL: "https://api.x.ai/v1",
+});
 
 interface ForexRate {
   currency: string;
@@ -41,31 +47,27 @@ const PricePredictor = () => {
     if (!rates?.quotes) return;
     
     try {
-      const prompt = `Analyze these current forex rates and provide a brief trading insight for each:
+      const prompt = `Analyze these current forex rates and provide a brief trading insight for each, considering real-time market conditions and trends:
       USDEUR: ${rates.quotes.USDEUR}
       USDGBP: ${rates.quotes.USDGBP}
       USDCAD: ${rates.quotes.USDCAD}
       USDPLN: ${rates.quotes.USDPLN}`;
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4",
-          messages: [{
+      const completion = await openai.chat.completions.create({
+        model: "grok-beta",
+        messages: [
+          { 
+            role: "system", 
+            content: "You are a forex trading expert. Analyze the current market rates and provide actionable insights based on real-time market conditions." 
+          },
+          {
             role: "user",
             content: prompt
-          }]
-        })
+          }
+        ]
       });
 
-      if (!response.ok) throw new Error('Failed to get AI analysis');
-      
-      const data = await response.json();
-      const analysis = data.choices[0].message.content;
+      const analysis = completion.choices[0].message.content;
 
       // Transform rates and analysis into chart data
       const newPredictions = Object.entries(rates.quotes).map(([pair, rate]) => ({
@@ -79,7 +81,7 @@ const PricePredictor = () => {
       
       toast({
         title: "Analysis Complete",
-        description: "AI has analyzed current market conditions",
+        description: "Grok has analyzed current market conditions",
       });
     } catch (error) {
       toast({
@@ -100,7 +102,7 @@ const PricePredictor = () => {
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <span>AI-Powered Forex Analysis</span>
+          <span>Grok-Powered Forex Analysis</span>
           <Button 
             onClick={getPrediction}
             disabled={isLoading || !rates}
@@ -166,7 +168,7 @@ const PricePredictor = () => {
           </div>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
-            Click "Analyze Market" to get AI-powered trading insights
+            Click "Analyze Market" to get Grok-powered trading insights
           </div>
         )}
       </CardContent>
