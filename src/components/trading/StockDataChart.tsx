@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { fetchIntradayData } from "@/services/alphavantage";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -19,19 +19,28 @@ export const StockDataChart = () => {
   const { data: stockData, isLoading, error } = useQuery({
     queryKey: ['intraday', symbol, interval],
     queryFn: () => fetchIntradayData(symbol, interval),
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 1200000, // 20 minutes
     retry: 3,
-    staleTime: 15000,
+    staleTime: 1140000, // 19 minutes
     gcTime: 300000,
   });
 
-  if (error) {
-    toast({
-      title: "Error fetching stock data",
-      description: error instanceof Error ? error.message : "Please try again later",
-      variant: "destructive",
-    });
-  }
+  const handleError = useCallback(() => {
+    if (error) {
+      toast({
+        title: "Error fetching stock data",
+        description: error instanceof Error ? error.message : "Please try again later",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+
+  // Handle error effect
+  React.useEffect(() => {
+    if (error) {
+      handleError();
+    }
+  }, [error, handleError]);
 
   if (isLoading) {
     return (
