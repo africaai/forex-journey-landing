@@ -12,6 +12,7 @@ import ForexPredictionCard from "./ForexPredictionCard";
 import NewsTicker from "./NewsTicker";
 import MarketSentimentAnalysis from "./MarketSentimentAnalysis";
 import TechnicalAnalysis from "./TechnicalAnalysis";
+import StockDataChart from "./StockDataChart";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -180,6 +181,8 @@ const PricePredictor = () => {
         <MarketSentimentAnalysis />
         <TechnicalAnalysis />
       </div>
+
+      <StockDataChart />
     </div>
   );
 };
