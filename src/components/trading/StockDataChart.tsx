@@ -18,15 +18,20 @@ export const StockDataChart = () => {
   const { data: stockData, isLoading, error } = useQuery({
     queryKey: ['intraday', symbol, interval],
     queryFn: () => fetchIntradayData(symbol, interval),
-    refetchInterval: 60000, // Refresh every minute
-    onError: () => {
-      toast({
-        title: "Error fetching stock data",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    }
+    refetchInterval: 60000,
+    retry: 3,
+    staleTime: 30000,
+    gcTime: 300000,
   });
+
+  // Show error toast when query fails
+  if (error) {
+    toast({
+      title: "Error fetching stock data",
+      description: error instanceof Error ? error.message : "Please try again later",
+      variant: "destructive",
+    });
+  }
 
   if (isLoading) {
     return (
@@ -63,27 +68,33 @@ export const StockDataChart = () => {
           animate={{ opacity: 1 }}
           className="h-[400px]"
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stockData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="timestamp"
-                tickFormatter={(value) => new Date(value).toLocaleTimeString()}
-              />
-              <YAxis domain={['auto', 'auto']} />
-              <Tooltip
-                labelFormatter={(value) => new Date(value).toLocaleString()}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
-              />
-              <Line
-                type="monotone"
-                dataKey="close"
-                stroke="#2563eb"
-                dot={false}
-                name="Price"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {stockData && stockData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={stockData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="timestamp"
+                  tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+                />
+                <YAxis domain={['auto', 'auto']} />
+                <Tooltip
+                  labelFormatter={(value) => new Date(value).toLocaleString()}
+                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="close"
+                  stroke="#2563eb"
+                  dot={false}
+                  name="Price"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              No data available
+            </div>
+          )}
         </motion.div>
       </CardContent>
     </Card>
