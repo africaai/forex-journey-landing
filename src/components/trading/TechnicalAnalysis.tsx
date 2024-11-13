@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, TrendingDown } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import OpenAI from "openai";
 import { motion } from "framer-motion";
 
@@ -11,11 +11,7 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-interface TechnicalIndicator {
-  name: string;
-  value: string;
-  signal: "buy" | "sell" | "neutral";
-}
+const STOCK_SYMBOLS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META'];
 
 const TechnicalAnalysis = () => {
   const { data: analysis, isLoading } = useQuery({
@@ -26,30 +22,26 @@ const TechnicalAnalysis = () => {
         messages: [
           {
             role: "system",
-            content: "You are a technical analysis expert. Provide detailed technical analysis for forex pairs."
+            content: "You are a technical analysis expert. Provide brief, clear analysis for major tech stocks."
           },
           {
             role: "user",
-            content: "Analyze EURUSD using key technical indicators (RSI, MACD, Moving Averages) and provide support/resistance levels."
+            content: `Analyze ${STOCK_SYMBOLS.join(', ')} with key metrics. Format: SYMBOL: PRICE TARGET TREND VOLUME`
           }
         ]
       });
 
-      const analysisText = completion.choices[0].message.content;
       return {
-        indicators: [
-          { name: "RSI", value: "65.5", signal: "buy" },
-          { name: "MACD", value: "0.0023", signal: "sell" },
-          { name: "MA(200)", value: "1.0950", signal: "neutral" }
-        ] as TechnicalIndicator[],
-        analysis: analysisText,
-        levels: {
-          support: [1.0850, 1.0800],
-          resistance: [1.0950, 1.1000]
-        }
+        stocks: STOCK_SYMBOLS.map(symbol => ({
+          symbol,
+          price: Math.random() * 1000 + 100,
+          trend: Math.random() > 0.5 ? "bullish" : "bearish",
+          volume: Math.floor(Math.random() * 1000000)
+        })),
+        analysis: completion.choices[0].message.content
       };
     },
-    refetchInterval: 60000 // Refresh every minute
+    refetchInterval: 30000 // Refresh every 30 seconds
   });
 
   if (isLoading) {
@@ -65,7 +57,7 @@ const TechnicalAnalysis = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Technical Analysis</CardTitle>
+        <CardTitle>Market Analysis</CardTitle>
       </CardHeader>
       <CardContent>
         <motion.div
@@ -73,57 +65,29 @@ const TechnicalAnalysis = () => {
           animate={{ opacity: 1 }}
           className="space-y-6"
         >
-          <div className="grid grid-cols-3 gap-4">
-            {analysis?.indicators.map((indicator, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {analysis?.stocks.map((stock) => (
               <motion.div
-                key={indicator.name}
+                key={stock.symbol}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
                 className="p-4 border rounded-lg"
               >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{indicator.name}</span>
-                  <Badge variant={
-                    indicator.signal === "buy" ? "default" :
-                    indicator.signal === "sell" ? "destructive" : "secondary"
-                  }>
-                    {indicator.signal.toUpperCase()}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-bold">{stock.symbol}</span>
+                  <Badge variant={stock.trend === "bullish" ? "default" : "destructive"}>
+                    {stock.trend}
                   </Badge>
                 </div>
-                <p className="text-2xl font-mono mt-2">{indicator.value}</p>
+                <p className="text-lg font-mono">${stock.price.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">
+                  Vol: {(stock.volume / 1000).toFixed(1)}K
+                </p>
               </motion.div>
             ))}
           </div>
 
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <h4 className="font-medium mb-2">Support Levels</h4>
-                <div className="space-y-2">
-                  {analysis?.levels.support.map((level, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <TrendingDown className="h-4 w-4 text-red-500" />
-                      <span className="font-mono">{level}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex-1">
-                <h4 className="font-medium mb-2">Resistance Levels</h4>
-                <div className="space-y-2">
-                  {analysis?.levels.resistance.map((level, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-green-500" />
-                      <span className="font-mono">{level}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 text-sm text-muted-foreground">
+          <div className="mt-4 text-lg space-y-2 font-mono whitespace-pre-line">
             {analysis?.analysis}
           </div>
         </motion.div>

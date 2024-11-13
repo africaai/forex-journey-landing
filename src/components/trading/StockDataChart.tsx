@@ -2,29 +2,29 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { fetchIntradayData, IntradayData } from "@/services/alphavantage";
+import { fetchIntradayData } from "@/services/alphavantage";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
 const intervals = ['1min', '5min', '15min', '30min', '60min'] as const;
+const symbols = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META'];
 
 export const StockDataChart = () => {
   const { toast } = useToast();
-  const [symbol, setSymbol] = useState('IBM');
+  const [symbol, setSymbol] = useState('AAPL');
   const [interval, setInterval] = useState<typeof intervals[number]>('5min');
 
   const { data: stockData, isLoading, error } = useQuery({
     queryKey: ['intraday', symbol, interval],
     queryFn: () => fetchIntradayData(symbol, interval),
-    refetchInterval: 60000,
+    refetchInterval: 30000, // Refresh every 30 seconds
     retry: 3,
-    staleTime: 30000,
+    staleTime: 15000,
     gcTime: 300000,
   });
 
-  // Show error toast when query fails
   if (error) {
     toast({
       title: "Error fetching stock data",
@@ -47,7 +47,18 @@ export const StockDataChart = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <span>{symbol} Stock Price</span>
+          <div className="flex gap-2">
+            {symbols.map((s) => (
+              <Button
+                key={s}
+                variant={symbol === s ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSymbol(s)}
+              >
+                {s}
+              </Button>
+            ))}
+          </div>
           <div className="flex gap-2">
             {intervals.map((i) => (
               <Button
