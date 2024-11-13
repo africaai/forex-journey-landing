@@ -64,8 +64,8 @@ const MarketSentimentAnalysis = () => {
       return failureCount < 3;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    refetchInterval: 300000, // Increased to 5 minutes to avoid rate limits
-    staleTime: 240000, // Cache data for 4 minutes
+    refetchInterval: 300000,
+    staleTime: 240000,
   });
 
   if (isLoading) {
@@ -94,13 +94,15 @@ const MarketSentimentAnalysis = () => {
               className="space-y-2"
             >
               <div className="flex justify-between items-center">
-                <h3 className="font-semibold">{data.pair}</h3>
-                <span className="text-sm text-muted-foreground">
-                  Sentiment Score: {Math.round(data.bullishScore)}%
+                <h3 className="font-semibold text-lg">{data.pair}</h3>
+                <span className="text-sm font-medium bg-primary/10 text-primary px-2 py-1 rounded">
+                  Score: {Math.round(data.bullishScore)}%
                 </span>
               </div>
               <Progress value={data.bullishScore} className="h-2" />
-              <p className="text-sm text-muted-foreground">{data.analysis}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 hover:line-clamp-none transition-all duration-200">
+                {data.analysis}
+              </p>
             </motion.div>
           ))}
         </div>
