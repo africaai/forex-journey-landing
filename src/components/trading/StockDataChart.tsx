@@ -1,10 +1,10 @@
+import React, { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { fetchIntradayData } from "@/services/alphavantage";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -36,7 +36,7 @@ export const StockDataChart = () => {
   }, [error, toast]);
 
   // Handle error effect
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       handleError();
     }
