@@ -54,8 +54,8 @@ const NewsTicker = () => {
       return failureCount < 3;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    refetchInterval: 300000, // Increased to 5 minutes to avoid rate limits
-    staleTime: 240000, // Cache data for 4 minutes
+    refetchInterval: 1200000, // Changed to 20 minutes
+    staleTime: 1140000, // Cache data for 19 minutes
   });
 
   useEffect(() => {

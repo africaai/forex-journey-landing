@@ -61,8 +61,8 @@ const TechnicalAnalysis = () => {
       return failureCount < 3;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    refetchInterval: 60000, // Reduced from 30s to 60s to avoid rate limits
-    staleTime: 30000, // Cache data for 30 seconds
+    refetchInterval: 1200000, // Changed to 20 minutes
+    staleTime: 1140000, // Cache data for 19 minutes
   });
 
   if (error) {
