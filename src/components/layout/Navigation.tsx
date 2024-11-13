@@ -11,34 +11,40 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SignUpForm } from "@/components/auth/SignUpForm";
+import { LoginForm } from "@/components/auth/LoginForm";
 
 const Navigation = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
+  const checkAdminStatus = async () => {
+    const sessionToken = localStorage.getItem('sessionToken');
+    if (!sessionToken) return;
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_WEBHOOK_BASE_URL}/verify-admin`, {
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`
+        }
+      });
+      setIsAdmin(response.ok);
+    } catch (error) {
+      setIsAdmin(false);
+    }
+  };
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      const sessionToken = localStorage.getItem('sessionToken');
-      if (!sessionToken) return;
-
-      try {
-        const response = await fetch(`${import.meta.env.VITE_WEBHOOK_BASE_URL}/verify-admin`, {
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`
-          }
-        });
-        setIsAdmin(response.ok);
-      } catch (error) {
-        setIsAdmin(false);
-      }
-    };
-
     checkAdminStatus();
   }, []);
 
   const handleSignUpSuccess = () => {
     setShowSignUp(false);
-    // Refresh admin status after successful signup
+    checkAdminStatus();
+  };
+
+  const handleLoginSuccess = () => {
+    setShowLogin(false);
     checkAdminStatus();
   };
 
@@ -113,7 +119,15 @@ const Navigation = () => {
                 <SignUpForm onSuccess={handleSignUpSuccess} />
               </DialogContent>
             </Dialog>
-            <Button>Login</Button>
+            
+            <Dialog open={showLogin} onOpenChange={setShowLogin}>
+              <DialogTrigger asChild>
+                <Button>Login</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <LoginForm onSuccess={handleLoginSuccess} />
+              </DialogContent>
+            </Dialog>
           </div>
         </Menubar>
       </div>
