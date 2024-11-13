@@ -1,5 +1,7 @@
 import { Calendar, Video, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { WebinarRegistrationForm } from "@/components/events/WebinarRegistrationForm";
 
 const Events = () => {
   return (
@@ -45,7 +47,14 @@ const Events = () => {
                 <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
                 <p className="text-accent font-semibold mb-4">{event.date}</p>
                 <p className="text-gray-600 mb-6">{event.description}</p>
-                <Button>Register Now</Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Register Now</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <WebinarRegistrationForm />
+                  </DialogContent>
+                </Dialog>
               </div>
             );
           })}
