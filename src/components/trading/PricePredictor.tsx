@@ -10,6 +10,8 @@ import { ForexRate } from "@/types/forex";
 import ForexCharts from "./ForexCharts";
 import ForexPredictionCard from "./ForexPredictionCard";
 import NewsTicker from "./NewsTicker";
+import MarketSentimentAnalysis from "./MarketSentimentAnalysis";
+import TechnicalAnalysis from "./TechnicalAnalysis";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -111,67 +113,74 @@ const PricePredictor = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <span className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-primary" />
-            Advanced Market Intelligence Hub
-          </span>
-          <AnimatePresence>
-            {!predictions.length && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <Button 
-                  onClick={getPrediction}
-                  disabled={isLoading || !rates || isAnalyzing}
-                  className="bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary"
+    <div className="space-y-6">
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex justify-between items-center">
+            <span className="flex items-center gap-2">
+              <TrendingUp className="h-6 w-6 text-primary" />
+              Advanced Market Intelligence Hub
+            </span>
+            <AnimatePresence>
+              {!predictions.length && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Analyzing Market
-                    </>
-                  ) : (
-                    'Generate Market Analysis'
-                  )}
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <NewsTicker />
-        {predictions.length > 0 ? (
-          <motion.div 
-            className="space-y-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <ForexCharts predictions={predictions} />
-            <div className="grid gap-4">
-              {predictions.map((prediction) => (
-                <ForexPredictionCard key={prediction.currency} prediction={prediction} />
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div 
-            className="text-center py-12 text-muted-foreground"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            Click "Generate Market Analysis" to get institutional-grade trading insights powered by advanced AI
-          </motion.div>
-        )}
-      </CardContent>
-    </Card>
+                  <Button 
+                    onClick={getPrediction}
+                    disabled={isLoading || !rates || isAnalyzing}
+                    className="bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing Market
+                      </>
+                    ) : (
+                      'Generate Market Analysis'
+                    )}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NewsTicker />
+          {predictions.length > 0 ? (
+            <motion.div 
+              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <ForexCharts predictions={predictions} />
+              <div className="grid gap-4">
+                {predictions.map((prediction) => (
+                  <ForexPredictionCard key={prediction.currency} prediction={prediction} />
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="text-center py-12 text-muted-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              Click "Generate Market Analysis" to get institutional-grade trading insights powered by advanced AI
+            </motion.div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <MarketSentimentAnalysis />
+        <TechnicalAnalysis />
+      </div>
+    </div>
   );
 };
 
