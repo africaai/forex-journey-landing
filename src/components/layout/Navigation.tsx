@@ -8,9 +8,13 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 
 const Navigation = () => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -31,6 +35,12 @@ const Navigation = () => {
 
     checkAdminStatus();
   }, []);
+
+  const handleSignUpSuccess = () => {
+    setShowSignUp(false);
+    // Refresh admin status after successful signup
+    checkAdminStatus();
+  };
 
   return (
     <header className="border-b bg-white shadow-sm">
@@ -75,23 +85,36 @@ const Navigation = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-gray-600 hover:text-primary transition-colors">
-              Home
-            </Link>
-            <Link to="/courses" className="text-gray-600 hover:text-primary transition-colors">
-              Courses
-            </Link>
-            <Link to="/events" className="text-gray-600 hover:text-primary transition-colors">
-              Events
-            </Link>
-            {isAdmin && (
-              <Link to="/admin" className="flex items-center text-gray-600 hover:text-primary transition-colors">
-                <Shield className="h-4 w-4 mr-2" />
-                Admin Panel
+          <div className="flex items-center space-x-4">
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link to="/" className="text-gray-600 hover:text-primary transition-colors">
+                Home
               </Link>
-            )}
-          </nav>
+              <Link to="/courses" className="text-gray-600 hover:text-primary transition-colors">
+                Courses
+              </Link>
+              <Link to="/events" className="text-gray-600 hover:text-primary transition-colors">
+                Events
+              </Link>
+              {isAdmin && (
+                <Link to="/admin" className="flex items-center text-gray-600 hover:text-primary transition-colors">
+                  <Shield className="h-4 w-4 mr-2" />
+                  Admin Panel
+                </Link>
+              )}
+            </nav>
+
+            {/* Auth Buttons */}
+            <Dialog open={showSignUp} onOpenChange={setShowSignUp}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="mr-2">Sign Up</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <SignUpForm onSuccess={handleSignUpSuccess} />
+              </DialogContent>
+            </Dialog>
+            <Button>Login</Button>
+          </div>
         </Menubar>
       </div>
     </header>
