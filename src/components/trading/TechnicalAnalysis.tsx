@@ -26,11 +26,11 @@ const TechnicalAnalysis = () => {
           messages: [
             {
               role: "system",
-              content: "You are a technical analysis expert. Provide brief, clear analysis for major tech stocks."
+              content: "You are a technical analysis expert. Provide brief, clear analysis for major tech stocks. Do not use asterisks or bullet points in your response."
             },
             {
               role: "user",
-              content: `Analyze ${STOCK_SYMBOLS.join(', ')} with key metrics. Format: SYMBOL: PRICE TARGET TREND VOLUME`
+              content: `Analyze ${STOCK_SYMBOLS.join(', ')} with key metrics. Provide a concise summary for each stock.`
             }
           ]
         });
@@ -56,13 +56,12 @@ const TechnicalAnalysis = () => {
       }
     },
     retry: (failureCount, error: any) => {
-      // Don't retry on rate limit errors
       if (error?.status === 429) return false;
       return failureCount < 3;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    refetchInterval: 1200000, // Changed to 20 minutes
-    staleTime: 1140000, // Cache data for 19 minutes
+    refetchInterval: 1200000,
+    staleTime: 1140000,
   });
 
   if (error) {
@@ -86,7 +85,7 @@ const TechnicalAnalysis = () => {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Market Analysis</CardTitle>
       </CardHeader>
@@ -118,7 +117,7 @@ const TechnicalAnalysis = () => {
             ))}
           </div>
 
-          <div className="mt-4 text-lg space-y-2 font-mono whitespace-pre-line">
+          <div className="mt-4 text-sm text-muted-foreground leading-relaxed line-clamp-3 hover:line-clamp-none transition-all duration-200">
             {analysis?.analysis}
           </div>
         </motion.div>
