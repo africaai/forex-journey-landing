@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Menu, List } from "lucide-react";
+import { Menu, List, Shield } from "lucide-react";
 import {
   Menubar,
   MenubarContent,
@@ -7,8 +7,31 @@ import {
   MenubarMenu,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { useState, useEffect } from "react";
 
 const Navigation = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const sessionToken = localStorage.getItem('sessionToken');
+      if (!sessionToken) return;
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_WEBHOOK_BASE_URL}/verify-admin`, {
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`
+          }
+        });
+        setIsAdmin(response.ok);
+      } catch (error) {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
+
   return (
     <header className="border-b bg-white shadow-sm">
       <div className="container mx-auto px-4 py-3">
@@ -34,6 +57,14 @@ const Navigation = () => {
                     Events
                   </MenubarItem>
                 </Link>
+                {isAdmin && (
+                  <Link to="/admin" className="block">
+                    <MenubarItem className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                      <Shield className="h-4 w-4 mr-2" />
+                      Admin Panel
+                    </MenubarItem>
+                  </Link>
+                )}
               </MenubarContent>
             </MenubarMenu>
             
@@ -54,6 +85,12 @@ const Navigation = () => {
             <Link to="/events" className="text-gray-600 hover:text-primary transition-colors">
               Events
             </Link>
+            {isAdmin && (
+              <Link to="/admin" className="flex items-center text-gray-600 hover:text-primary transition-colors">
+                <Shield className="h-4 w-4 mr-2" />
+                Admin Panel
+              </Link>
+            )}
           </nav>
         </Menubar>
       </div>
