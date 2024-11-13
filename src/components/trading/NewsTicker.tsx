@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import OpenAI from 'openai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Clock, Globe, ArrowRight } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -12,31 +13,49 @@ const openai = new OpenAI({
 
 const NewsTicker = () => {
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
+  const { toast } = useToast();
 
   const { data: news = [], isLoading } = useQuery({
     queryKey: ['forex-news'],
     queryFn: async () => {
-      const currentDate = new Date().toLocaleString();
-      const completion = await openai.chat.completions.create({
-        model: "grok-beta",
-        messages: [
-          {
-            role: "system",
-            content: `You are a financial news analyst Current date and time ${currentDate} Provide only the latest forex market headlines in plain text format without any punctuation or additional context Focus on major currency pairs and significant market events from the last few hours`
-          },
-          {
-            role: "user",
-            content: `As of ${currentDate} what are the most recent forex market headlines Provide exactly 5 headlines focusing on events from the last few hours Format as plain text without punctuation or additional context`
-          }
-        ]
-      });
+      try {
+        const currentDate = new Date().toLocaleString();
+        const completion = await openai.chat.completions.create({
+          model: "grok-beta",
+          messages: [
+            {
+              role: "system",
+              content: `You are a financial news analyst Current date and time ${currentDate} Provide only the latest forex market headlines in plain text format without any punctuation or additional context Focus on major currency pairs and significant market events from the last few hours`
+            },
+            {
+              role: "user",
+              content: `As of ${currentDate} what are the most recent forex market headlines Provide exactly 5 headlines focusing on events from the last few hours Format as plain text without punctuation or additional context`
+            }
+          ]
+        });
 
-      const newsText = completion.choices[0].message.content || '';
-      return newsText.split('\n')
-        .filter(line => line.trim())
-        .map(line => line.replace(/^\d+\.\s*/, ''));
+        const newsText = completion.choices[0].message.content || '';
+        return newsText.split('\n')
+          .filter(line => line.trim())
+          .map(line => line.replace(/^\d+\.\s*/, ''));
+      } catch (error: any) {
+        if (error?.status === 429) {
+          toast({
+            title: "Rate limit reached",
+            description: "News updates will resume shortly",
+            variant: "destructive",
+          });
+        }
+        throw error;
+      }
     },
-    refetchInterval: 300000
+    retry: (failureCount, error: any) => {
+      if (error?.status === 429) return false;
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchInterval: 300000, // Increased to 5 minutes to avoid rate limits
+    staleTime: 240000, // Cache data for 4 minutes
   });
 
   useEffect(() => {

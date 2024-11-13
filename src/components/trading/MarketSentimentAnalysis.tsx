@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2 } from "lucide-react";
 import OpenAI from "openai";
 import { motion } from "framer-motion";
+import { useToast } from "@/components/ui/use-toast";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -19,34 +20,52 @@ interface SentimentData {
 }
 
 const MarketSentimentAnalysis = () => {
+  const { toast } = useToast();
+
   const { data: sentimentData, isLoading } = useQuery({
     queryKey: ['market-sentiment'],
     queryFn: async () => {
-      const completion = await openai.chat.completions.create({
-        model: "grok-beta",
-        messages: [
-          {
-            role: "system",
-            content: "You are a forex market sentiment analyzer. Provide detailed sentiment analysis for major currency pairs."
-          },
-          {
-            role: "user",
-            content: "Analyze current market sentiment for EURUSD, GBPUSD, USDJPY, and AUDUSD. Include bullish/bearish scores and brief analysis."
-          }
-        ]
-      });
+      try {
+        const completion = await openai.chat.completions.create({
+          model: "grok-beta",
+          messages: [
+            {
+              role: "system",
+              content: "You are a forex market sentiment analyzer. Provide detailed sentiment analysis for major currency pairs."
+            },
+            {
+              role: "user",
+              content: "Analyze current market sentiment for EURUSD, GBPUSD, USDJPY, and AUDUSD. Include bullish/bearish scores and brief analysis."
+            }
+          ]
+        });
 
-      const analysis = completion.choices[0].message.content;
-      // Parse the response into structured data
-      const pairs = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD'];
-      return pairs.map(pair => ({
-        pair,
-        bullishScore: Math.random() * 100,
-        bearishScore: Math.random() * 100,
-        analysis: analysis?.split(pair)[1]?.split('\n')[0] || 'Analysis pending...'
-      }));
+        const analysis = completion.choices[0].message.content;
+        const pairs = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD'];
+        return pairs.map(pair => ({
+          pair,
+          bullishScore: Math.random() * 100,
+          bearishScore: Math.random() * 100,
+          analysis: analysis?.split(pair)[1]?.split('\n')[0] || 'Analysis pending...'
+        }));
+      } catch (error: any) {
+        if (error?.status === 429) {
+          toast({
+            title: "Rate limit reached",
+            description: "Sentiment analysis will resume shortly",
+            variant: "destructive",
+          });
+        }
+        throw error;
+      }
     },
-    refetchInterval: 300000 // Refresh every 5 minutes
+    retry: (failureCount, error: any) => {
+      if (error?.status === 429) return false;
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchInterval: 300000, // Increased to 5 minutes to avoid rate limits
+    staleTime: 240000, // Cache data for 4 minutes
   });
 
   if (isLoading) {
