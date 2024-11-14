@@ -49,7 +49,7 @@ const Navigation = () => {
   };
 
   return (
-    <header className="border-b bg-white shadow-sm">
+    <header className="border-b bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <Menubar className="border-none bg-transparent justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -86,7 +86,8 @@ const Navigation = () => {
             
             <div className="flex items-center space-x-2">
               <List className="h-6 w-6 text-primary" />
-              <span className="font-semibold text-lg text-primary">Forex Journey</span>
+              <span className="font-semibold text-lg text-primary hidden sm:inline">Forex Journey</span>
+              <span className="font-semibold text-lg text-primary sm:hidden">FJ</span>
             </div>
           </div>
 
@@ -111,23 +112,25 @@ const Navigation = () => {
             </nav>
 
             {/* Auth Buttons */}
-            <Dialog open={showSignUp} onOpenChange={setShowSignUp}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="mr-2">Sign Up</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <SignUpForm onSuccess={handleSignUpSuccess} />
-              </DialogContent>
-            </Dialog>
-            
-            <Dialog open={showLogin} onOpenChange={setShowLogin}>
-              <DialogTrigger asChild>
-                <Button>Login</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <LoginForm onSuccess={handleLoginSuccess} />
-              </DialogContent>
-            </Dialog>
+            <div className="flex space-x-2">
+              <Dialog open={showSignUp} onOpenChange={setShowSignUp}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="hidden sm:inline-flex">Sign Up</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] w-[95vw] sm:w-full">
+                  <SignUpForm onSuccess={handleSignUpSuccess} />
+                </DialogContent>
+              </Dialog>
+              
+              <Dialog open={showLogin} onOpenChange={setShowLogin}>
+                <DialogTrigger asChild>
+                  <Button className="whitespace-nowrap">Log In</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] w-[95vw] sm:w-full">
+                  <LoginForm onSuccess={handleLoginSuccess} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </Menubar>
       </div>
